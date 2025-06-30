@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      th:replace="~{layout :: html(~{::section})}">
+<body>
+    <section>
+        <h2>Product List</h2>
+        <div class="mb-3">
+            <a th:href="@{/products/add}" class="btn btn-primary" sec:authorize="hasRole('ADMIN')">
+                <i class="bi bi-plus-circle"></i> Add New Product
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th><a th:href="@{'/products/list'(page=${currentPage},size=${pageSize},sortField='id',sortDir=${sortField == 'id' ? reverseSortDir : 'asc'})}" style="color:inherit;text-decoration:none">ID <span th:if="${sortField == 'id'}" th:text="${sortDir == 'asc' ? '▲' : '▼'}"></span></a></th>
+                        <th><a th:href="@{'/products/list'(page=${currentPage},size=${pageSize},sortField='name',sortDir=${sortField == 'name' ? reverseSortDir : 'asc'})}" style="color:inherit;text-decoration:none">Name <span th:if="${sortField == 'name'}" th:text="${sortDir == 'asc' ? '▲' : '▼'}"></span></a></th>
+                        <th><a th:href="@{'/products/list'(page=${currentPage},size=${pageSize},sortField='description',sortDir=${sortField == 'description' ? reverseSortDir : 'asc'})}" style="color:inherit;text-decoration:none">Description <span th:if="${sortField == 'description'}" th:text="${sortDir == 'asc' ? '▲' : '▼'}"></span></a></th>
+                        <th><a th:href="@{'/products/list'(page=${currentPage},size=${pageSize},sortField='price',sortDir=${sortField == 'price' ? reverseSortDir : 'asc'})}" style="color:inherit;text-decoration:none">Price <span th:if="${sortField == 'price'}" th:text="${sortDir == 'asc' ? '▲' : '▼'}"></span></a></th>
+                        <th><a th:href="@{'/products/list'(page=${currentPage},size=${pageSize},sortField='quantity',sortDir=${sortField == 'quantity' ? reverseSortDir : 'asc'})}" style="color:inherit;text-decoration:none">Quantity <span th:if="${sortField == 'quantity'}" th:text="${sortDir == 'asc' ? '▲' : '▼'}"></span></a></th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${productPage.content.empty}">
+                        <td colspan="6" class="text-center">No Products Available</td>
+                    </tr>
+                    <tr th:each="product : ${productPage.content}">
+                        <td th:text="${product.id}"></td>
+                        <td th:text="${product.name}"></td>
+                        <td th:text="${product.description}"></td>
+                        <td th:text="${'$' + product.price}"></td>
+                        <td th:text="${product.quantity}"></td>
+                        <td>
+                            <a th:href="@{/products/view/{id}(id=${product.id})}" class="btn btn-sm btn-info me-1">
+                                View
+                            </a>
+                            <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-sm btn-warning me-1" sec:authorize="hasRole('ADMIN')">
+                                Edit
+                            </a>
+                            <a th:href="@{/products/delete/{id}(id=${product.id})}" class="btn btn-sm btn-danger" sec:authorize="hasRole('ADMIN')"
+                               onclick="return confirm('Are you sure you want to delete this product?')">
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div>
+                <span th:text="'Page ' + (${currentPage} + 1) + ' of ' + ${productPage.totalPages}"></span>
+            </div>
+            <nav>
+                <ul class="pagination mb-0">
+                    <li class="page-item" th:classappend="${productPage.first} ? 'disabled'">
+                        <a class="page-link" th:href="@{'/products/list'(page=${currentPage - 1},size=${pageSize},sortField=${sortField},sortDir=${sortDir})}">Previous</a>
+                    </li>
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, productPage.totalPages - 1)}"
+                        th:classappend="${i} == ${currentPage} ? 'active'">
+                        <a class="page-link" th:href="@{'/products/list'(page=${i},size=${pageSize},sortField=${sortField},sortDir=${sortDir})}" th:text="${i + 1}"></a>
+                    </li>
+                    <li class="page-item" th:classappend="${productPage.last} ? 'disabled'">
+                        <a class="page-link" th:href="@{'/products/list'(page=${currentPage + 1},size=${pageSize},sortField=${sortField},sortDir=${sortDir})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+            <div>
+                <form method="get" th:action="@{/products/list}" class="d-inline">
+                    <input type="hidden" name="page" th:value="${currentPage}" />
+                    <input type="hidden" name="sortField" th:value="${sortField}" />
+                    <input type="hidden" name="sortDir" th:value="${sortDir}" />
+                    <label for="pageSizeSelect">Rows:</label>
+                    <select id="pageSizeSelect" name="size" onchange="this.form.submit()" class="form-select d-inline w-auto ms-1">
+                        <option th:value="5" th:selected="${pageSize == 5}">5</option>
+                        <option th:value="10" th:selected="${pageSize == 10}">10</option>
+                        <option th:value="20" th:selected="${pageSize == 20}">20</option>
+                    </select>
+                </form>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

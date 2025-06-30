@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: html(~{::section})}">
+<body>
+<section>
+    <h2>Product Details</h2>
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h4 class="card-title mb-3" th:text="${product.name}"></h4>
+            <p class="card-text"><strong>Description:</strong> <span th:text="${product.description}"></span></p>
+            <p class="card-text"><strong>Price:</strong> $<span th:text="${product.price}"></span></p>
+            <p class="card-text"><strong>Quantity:</strong> <span th:text="${product.quantity}"></span></p>
+        </div>
+    </div>
+    <a th:href="@{/products/list}" class="btn btn-secondary">Back to List</a>
+    <span sec:authorize="hasRole('ADMIN')">
+        <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-warning ms-2">Edit</a>
+        <a th:href="@{/products/delete/{id}(id=${product.id})}" class="btn btn-danger ms-2"
+           onclick="return confirm('Are you sure you want to delete this product?')">Delete</a>
+    </span>
+</section>
+</body>
+</html>
+
