@@ -10,24 +10,91 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Controller
-@RequestMapping("/users")
-@PreAuthorize("hasRole('ADMIN')")
 public class UserController {
     @Autowired
     private UserService userService;
     @Autowired
     private RoleRepository roleRepository;
 
-    @GetMapping("/list")
+    @GetMapping("/profile")
+    public String viewProfile(Authentication authentication, Model model) {
+        String username = authentication.getName();
+        Optional<User> userOptional = userService.findUserByUsername(username);
+        if (userOptional.isPresent()) {
+            model.addAttribute("user", userOptional.get());
+            return "user/profile";
+        }
+        return "redirect:/";
+    }
+
+    @GetMapping("/profile/edit")
+    public String editProfile(Authentication authentication, Model model) {
+        String username = authentication.getName();
+        Optional<User> userOptional = userService.findUserByUsername(username);
+        if (userOptional.isPresent()) {
+            model.addAttribute("user", userOptional.get());
+            return "user/edit-profile";
+        }
+        return "redirect:/profile";
+    }
+
+    @PostMapping("/profile/update")
+    public String updateProfile(Authentication authentication,
+                                @ModelAttribute User user,
+                                @RequestParam(required = false) String currentPassword,
+                                @RequestParam(required = false) String newPassword,
+                                RedirectAttributes redirectAttributes) {
+        String username = authentication.getName();
+        Optional<User> existingUserOptional = userService.findUserByUsername(username);
+
+        if (existingUserOptional.isPresent()) {
+            User existingUser = existingUserOptional.get();
+
+            // Update basic information
+            existingUser.setEmail(user.getEmail());
+
+            // Handle password change if provided
+            if (newPassword != null && !newPassword.trim().isEmpty()) {
+                if (currentPassword == null || currentPassword.trim().isEmpty()) {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Current password is required to change password");
+                    return "redirect:/profile/edit";
+                }
+
+                // Verify current password
+                if (!userService.verifyCurrentPassword(existingUser, currentPassword)) {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Current password is incorrect");
+                    return "redirect:/profile/edit";
+                }
+
+                // Encode and set new password
+                userService.updateUserPassword(existingUser, newPassword);
+            }
+
+            try {
+                userService.updateUser(existingUser);
+                redirectAttributes.addFlashAttribute("successMessage", "Profile updated successfully!");
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Error updating profile: " + e.getMessage());
+                return "redirect:/profile/edit";
+            }
+        }
+
+        return "redirect:/profile";
+    }
+
+    @GetMapping("/users/list")
+    @PreAuthorize("hasRole('ADMIN')")
     public String listUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
@@ -46,14 +113,16 @@ public class UserController {
         return "user/list";
     }
 
-    @GetMapping("/add")
+    @GetMapping("/users/add")
+    @PreAuthorize("hasRole('ADMIN')")
     public String showAddForm(Model model) {
         model.addAttribute("user", new User());
         model.addAttribute("allRoles", roleRepository.findAll());
         return "user/form";
     }
 
-    @GetMapping("/edit/{id}")
+    @GetMapping("/users/edit/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public String showEditForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         User user = userService.findUserById(id).orElse(null);
         if (user == null) {
@@ -65,7 +134,8 @@ public class UserController {
         return "user/form";
     }
 
-    @PostMapping("/save")
+    @PostMapping("/users/save")
+    @PreAuthorize("hasRole('ADMIN')")
     public String saveUser(@ModelAttribute User user, @RequestParam(required = false) List<Long> roles, RedirectAttributes redirectAttributes) {
         Set<Role> userRoles = Set.copyOf(roleRepository.findAllById(roles));
         user.setRoles(userRoles);
@@ -84,14 +154,16 @@ public class UserController {
         return "redirect:/users/list";
     }
 
-    @GetMapping("/delete/{id}")
+    @GetMapping("/users/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public String deleteUser(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         userService.deleteUser(id);
         redirectAttributes.addFlashAttribute("successMessage", "User deleted successfully!");
         return "redirect:/users/list";
     }
 
-    @GetMapping("/view/{id}")
+    @GetMapping("/users/view/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public String viewUser(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         return userService.findUserById(id)
             .map(user -> {

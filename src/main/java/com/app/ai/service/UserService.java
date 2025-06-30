@@ -73,6 +73,14 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public boolean verifyCurrentPassword(User user, String currentPassword) {
+        return passwordEncoder.matches(currentPassword, user.getPassword());
+    }
+
+    public void updateUserPassword(User user, String newPassword) {
+        user.setPassword(passwordEncoder.encode(newPassword));
+    }
+
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
