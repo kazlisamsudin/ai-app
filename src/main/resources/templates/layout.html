@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Animate.css for animations -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Enhanced UI styles -->
+    <link rel="stylesheet" th:href="@{/css/enhanced-styles.css}">
     <style>
         :root {
             /* Modern color palette with synchronous colors */
@@ -317,6 +319,78 @@
         .dark-mode .section-heading:after {
             background: linear-gradient(to right, var(--primary-light), var(--accent-color));
         }
+
+        /* Loading Spinner Overlay */
+        .spinner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1050;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .spinner-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .spinner-container {
+            text-align: center;
+        }
+
+        /* Enhanced UI Interactions */
+        .hover-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .hover-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--border-radius-md);
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-align: center;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .status-active {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-inactive {
+            background-color: rgba(239, 71, 111, 0.1);
+            color: var(--danger-color);
+        }
     </style>
 </head>
 <body>
@@ -410,6 +484,16 @@
 
         <div th:replace="${content} ?: ~{}" class="animate__animated animate__fadeIn">
             <!-- Page content will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Loading Spinner Overlay -->
+    <div class="spinner-overlay" id="loadingSpinner">
+        <div class="spinner-container">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="spinner-text mt-3">Processing your request...</div>
         </div>
     </div>
 
@@ -533,6 +617,118 @@
                 bsAlert.close();
             });
         }, 5000);
+
+        // Show loading spinner on form submit and page transition
+        document.addEventListener('submit', (e) => {
+            const form = e.target;
+            if (form.matches('form')) {
+                e.preventDefault();
+                const spinner = document.getElementById('loadingSpinner');
+                spinner.classList.add('show');
+                setTimeout(() => {
+                    form.submit();
+                }, 1000); // Simulate loading time
+            }
+        });
+
+        // Show spinner on page transition
+        document.addEventListener('turbo:visit', () => {
+            const spinner = document.getElementById('loadingSpinner');
+            spinner.classList.add('show');
+        });
+
+        document.addEventListener('turbo:load', () => {
+            const spinner = document.getElementById('loadingSpinner');
+            spinner.classList.remove('show');
+        });
+    </script>
+
+    <!-- Enhanced UI Interactions -->
+    <script>
+        // Add active class to current nav item
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentLocation = window.location.pathname;
+            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href === currentLocation ||
+                    (href !== '/' && currentLocation.startsWith(href))) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Password visibility toggle
+            const togglePassword = document.getElementById('togglePassword');
+            if (togglePassword) {
+                togglePassword.addEventListener('click', function() {
+                    const passwordInput = document.getElementById('password');
+                    const icon = this.querySelector('i');
+
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } else {
+                        passwordInput.type = 'password';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    }
+                });
+            }
+
+            // Enhanced form validation feedback
+            const forms = document.querySelectorAll('.needs-validation');
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        // Add shake animation to invalid fields
+                        const invalidFields = form.querySelectorAll(':invalid');
+                        invalidFields.forEach(field => {
+                            field.classList.add('animate__animated', 'animate__shakeX');
+                            field.addEventListener('animationend', () => {
+                                field.classList.remove('animate__animated', 'animate__shakeX');
+                            });
+                        });
+                    } else {
+                        // Show loading spinner
+                        const spinner = document.getElementById('loadingSpinner');
+                        if (spinner) spinner.classList.add('show');
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+
+            // Add hover card effect
+            document.querySelectorAll('.card').forEach(card => {
+                card.classList.add('hover-card');
+            });
+
+            // Add pulse effect to primary buttons
+            document.querySelectorAll('.btn-primary').forEach(btn => {
+                btn.classList.add('btn-pulse');
+            });
+
+            // Enable tooltips on buttons with title attribute
+            document.querySelectorAll('[title]').forEach(el => {
+                new bootstrap.Tooltip(el);
+            });
+        });
+
+        // Convert enabled/disabled status to badges
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('td').forEach(cell => {
+                const text = cell.textContent.trim();
+                if (text === 'Yes') {
+                    cell.innerHTML = '<span class="status-badge status-active">Active</span>';
+                } else if (text === 'No') {
+                    cell.innerHTML = '<span class="status-badge status-inactive">Inactive</span>';
+                }
+            });
+        });
     </script>
 </body>
 </html>
