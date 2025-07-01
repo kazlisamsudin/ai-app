@@ -26,6 +26,9 @@ public class OrderService {
     @Autowired
     private OrderItemRepository orderItemRepository;
 
+    @Autowired
+    private ProductService productService;
+
     public List<Order> findAllOrders() {
         return orderRepository.findAll();
     }
@@ -36,6 +39,64 @@ public class OrderService {
 
     public Order saveOrder(Order order) {
         return orderRepository.save(order);
+    }
+
+    /**
+     * Create a new order and reduce stock for all items
+     */
+    @Transactional
+    public Order createOrder(Order order) {
+        // Save the order first to get the ID
+        Order savedOrder = orderRepository.save(order);
+
+        // Reduce stock for each item in the order
+        for (OrderItem item : order.getOrderItems()) {
+            try {
+                productService.reduceStock(
+                        item.getProduct().getId(),
+                        item.getQuantity(),
+                        savedOrder.getId()
+                );
+            } catch (IllegalArgumentException e) {
+                // Rollback order if insufficient stock
+                orderRepository.delete(savedOrder);
+                throw new RuntimeException("Insufficient stock for product: " + item.getProduct().getName() + ". " + e.getMessage());
+            }
+        }
+
+        return savedOrder;
+    }
+
+    /**
+     * Cancel an order and restore stock for all items
+     */
+    @Transactional
+    public Order cancelOrder(Long orderId) {
+        Optional<Order> orderOpt = orderRepository.findById(orderId);
+        if (orderOpt.isPresent()) {
+            Order order = orderOpt.get();
+
+            // Only allow cancellation of pending or confirmed orders
+            if (order.getStatus() == Order.OrderStatus.PENDING ||
+                    order.getStatus() == Order.OrderStatus.CONFIRMED) {
+
+                // Restore stock for each item
+                for (OrderItem item : order.getOrderItems()) {
+                    productService.restoreStock(
+                            item.getProduct().getId(),
+                            item.getQuantity(),
+                            order.getId()
+                    );
+                }
+
+                // Update order status to cancelled
+                order.setStatus(Order.OrderStatus.CANCELLED);
+                return orderRepository.save(order);
+            } else {
+                throw new RuntimeException("Cannot cancel order with status: " + order.getStatus());
+            }
+        }
+        throw new RuntimeException("Order not found with id: " + orderId);
     }
 
     public void deleteOrder(Long id) {

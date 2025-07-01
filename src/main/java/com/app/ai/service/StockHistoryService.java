@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,22 +24,38 @@ public class StockHistoryService {
     /**
      * Record a stock change in the audit trail
      */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void recordStockChange(Product product, Integer previousQuantity, Integer newQuantity,
                                  StockHistory.ChangeType changeType, String reason, Long orderId) {
-        String currentUser = getCurrentUsername();
+        try {
+            String currentUser = getCurrentUsername();
 
-        StockHistory history = new StockHistory(product, previousQuantity, newQuantity,
-                                              changeType, reason, currentUser);
-        if (orderId != null) {
-            history.setOrderId(orderId);
+            StockHistory history = new StockHistory(product, previousQuantity, newQuantity,
+                                                  changeType, reason, currentUser);
+            if (orderId != null) {
+                history.setOrderId(orderId);
+            }
+
+            StockHistory saved = stockHistoryRepository.save(history);
+            stockHistoryRepository.flush();
+
+            System.out.println("Successfully recorded stock history: ID=" + saved.getId() +
+                    ", Product=" + product.getName() +
+                    ", Change=" + (newQuantity - previousQuantity) +
+                    ", Type=" + changeType +
+                    ", Order=" + orderId);
+        } catch (Exception e) {
+            System.err.println("Error recording stock history for product " + product.getId() +
+                    ": " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to record stock history", e);
         }
-
-        stockHistoryRepository.save(history);
     }
 
     /**
      * Record a stock change without order reference
      */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void recordStockChange(Product product, Integer previousQuantity, Integer newQuantity,
                                  StockHistory.ChangeType changeType, String reason) {
         recordStockChange(product, previousQuantity, newQuantity, changeType, reason, null);

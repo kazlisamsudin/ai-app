@@ -1,5 +1,6 @@
 package com.app.ai.controller;
 
+import com.app.ai.model.Category;
 import com.app.ai.model.Product;
 import com.app.ai.model.ProductPhoto;
 import com.app.ai.model.StockHistory;
@@ -43,13 +44,25 @@ public class ProductController {
     @GetMapping("/list")
     public String listProducts(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "9") int size,
-            @RequestParam(defaultValue = "id") String sortField,
+            @RequestParam(defaultValue = "15") int size,
+            @RequestParam(defaultValue = "name") String sortField,
             @RequestParam(defaultValue = "asc") String sortDir,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String priceRange,
+            @RequestParam(required = false) Boolean inStock,
             Model model) {
+
         Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortField).ascending() : Sort.by(sortField).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Product> productPage = productService.findPaginatedProducts(pageable);
+
+        // Apply filters if provided
+        Page<Product> productPage;
+        if (search != null || categoryId != null || priceRange != null || inStock != null) {
+            productPage = productService.findFilteredProducts(search, categoryId, priceRange, inStock, pageable);
+        } else {
+            productPage = productService.findPaginatedProducts(pageable);
+        }
 
         // Create a map of product IDs to their first photo for efficient lookup
         Map<Long, ProductPhoto> productPhotos = new HashMap<>();
@@ -60,13 +73,22 @@ public class ProductController {
             }
         }
 
+        // Get all categories for filter dropdown
+        List<Category> categories = categoryService.findAllCategories();
+
         model.addAttribute("productPage", productPage);
         model.addAttribute("productPhotos", productPhotos);
+        model.addAttribute("categories", categories);
         model.addAttribute("currentPage", page);
         model.addAttribute("pageSize", size);
         model.addAttribute("sortField", sortField);
         model.addAttribute("sortDir", sortDir);
         model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
+        model.addAttribute("search", search);
+        model.addAttribute("categoryId", categoryId);
+        model.addAttribute("priceRange", priceRange);
+        model.addAttribute("inStock", inStock);
+
         return "product/list";
     }
 

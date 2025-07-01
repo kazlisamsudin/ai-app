@@ -2,6 +2,7 @@ package com.app.ai.controller;
 
 import com.app.ai.model.*;
 import com.app.ai.repository.*;
+import com.app.ai.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -9,7 +10,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -33,6 +37,9 @@ public class CartController {
 
     @Autowired
     private OrderItemRepository orderItemRepository;
+
+    @Autowired
+    private OrderService orderService; // Inject OrderService
 
     @PostMapping("/add")
     public String addToCart(@RequestParam Long productId,
@@ -152,37 +159,48 @@ public class CartController {
             return "redirect:/cart/view";
         }
 
-        // Create order from cart
-        Order order = new Order();
-        order.setUser(user);
-        order.setOrderDate(LocalDateTime.now());
-        order.setStatus(Order.OrderStatus.PENDING);
-        order.setTotalAmount(cart.getTotalAmount());
+        try {
+            // Create order from cart
+            Order order = new Order();
+            order.setUser(user);
+            order.setOrderDate(LocalDateTime.now());
+            order.setStatus(Order.OrderStatus.PENDING);
+            order.setTotalAmount(cart.getTotalAmount());
 
-        Order savedOrder = orderRepository.save(order);
+            // Convert cart items to order items
+            List<OrderItem> orderItems = new ArrayList<>();
+            for (CartItem cartItem : cart.getItems()) {
+                OrderItem orderItem = new OrderItem();
+                orderItem.setOrder(order);
+                orderItem.setProduct(cartItem.getProduct());
+                orderItem.setQuantity(cartItem.getQuantity());
+                orderItem.setPrice(cartItem.getPrice());
+                orderItem.setTotalPrice(cartItem.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+                orderItems.add(orderItem);
+            }
+            order.setOrderItems(orderItems);
 
-        // Convert cart items to order items
-        for (CartItem cartItem : cart.getItems()) {
-            OrderItem orderItem = new OrderItem();
-            orderItem.setOrder(savedOrder);
-            orderItem.setProduct(cartItem.getProduct());
-            orderItem.setQuantity(cartItem.getQuantity());
-            orderItem.setPrice(cartItem.getPrice());
+            // Use OrderService.createOrder which handles stock reduction and history tracking
+            Order savedOrder = orderService.createOrder(order);
 
-            // Save the order item to database
-            orderItemRepository.save(orderItem);
+            // Save order items to database
+            for (OrderItem orderItem : orderItems) {
+                orderItem.setOrder(savedOrder);
+                orderItemRepository.save(orderItem);
+            }
 
-            // Update product stock
-            Product product = cartItem.getProduct();
-            product.setQuantity(product.getQuantity() - cartItem.getQuantity());
-            productRepository.save(product);
+            // Clear cart
+            cartItemRepository.deleteAll(cart.getItems());
+            cartRepository.delete(cart);
+
+            redirectAttributes.addFlashAttribute("successMessage",
+                "Order placed successfully! Order #" + savedOrder.getId());
+            return "redirect:/orders/my-orders";
+
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                "Failed to place order: " + e.getMessage());
+            return "redirect:/cart/view";
         }
-
-        // Clear cart
-        cartItemRepository.deleteAll(cart.getItems());
-        cartRepository.delete(cart);
-
-        redirectAttributes.addFlashAttribute("successMessage", "Order placed successfully! Order #" + savedOrder.getId());
-        return "redirect:/orders/my-orders";
     }
 }
