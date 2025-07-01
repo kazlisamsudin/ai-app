@@ -39,6 +39,19 @@
                             </div>
                             <div class="invalid-feedback">Please provide a product name.</div>
                         </div>
+
+                        <div class="mb-4">
+                            <label for="category" class="form-label">Category</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white text-primary"><i class="fas fa-folder"></i></span>
+                                <select class="form-control" id="category" th:field="*{category}" required style="border-radius: 2rem; box-shadow: 0 2px 8px #e9f1fa;">
+                                    <option value="">Select a category</option>
+                                    <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}">Category Name</option>
+                                </select>
+                            </div>
+                            <div class="invalid-feedback">Please select a category.</div>
+                        </div>
+
                         <div class="mb-4">
                             <label for="description" class="form-label">Description</label>
                             <div class="input-group">

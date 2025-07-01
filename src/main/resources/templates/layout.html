@@ -254,18 +254,40 @@
                             <i class="fas fa-home me-1"></i>Home
                         </a>
                     </li>
-                    <li class="nav-item" sec:authorize="isAuthenticated()">
-                        <a class="nav-link" th:href="@{/products/list}">
-                            <i class="fas fa-boxes me-1"></i>Products
+                    <!-- Dashboard as separate nav item for admins only -->
+                    <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                        <a class="nav-link" th:href="@{/dashboard}">
+                            <i class="fas fa-chart-line me-1"></i>Dashboard
                         </a>
                     </li>
-                    <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                        <a class="nav-link" th:href="@{/users/list}">
-                            <i class="fas fa-users me-1"></i>Users
+                    <li class="nav-item dropdown" sec:authorize="hasRole('ADMIN')">
+                        <a class="nav-link dropdown-toggle" href="javascript:void(0)" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-cogs me-1"></i> Admin
                         </a>
+                        <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                            <li><a class="dropdown-item" th:href="@{/users/list}"><i class="fas fa-users me-2"></i> Manage Users</a></li>
+                            <li><a class="dropdown-item" th:href="@{/products/list}"><i class="fas fa-box me-2"></i> Manage Products</a></li>
+                            <li><a class="dropdown-item" th:href="@{/categories/list}"><i class="fas fa-tags me-2"></i> Manage Categories</a></li>
+                            <li><a class="dropdown-item" th:href="@{/orders/list}"><i class="fas fa-shopping-cart me-2"></i> Manage Orders</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" th:href="@{/admin/stock/history}"><i class="fas fa-history me-2"></i> Stock Management</a></li>
+                            <li><a class="dropdown-item" th:href="@{/dashboard/reports}"><i class="fas fa-file-alt me-2"></i> Reports</a></li>
+                        </ul>
                     </li>
                 </ul>
                 <ul class="navbar-nav d-flex align-items-center">
+                    <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                        <a class="nav-link dropdown-toggle" href="javascript:void(0)" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user me-1"></i> <span sec:authentication="name">User</span>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" th:href="@{/products/list}"><i class="fas fa-boxes me-2"></i> Browse Products</a></li>
+                            <li><a class="dropdown-item" th:href="@{/orders/my-orders}"><i class="fas fa-history me-2"></i> My Orders</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" th:href="@{/profile}"><i class="fas fa-user-circle me-2"></i> My Profile</a></li>
+                            <li><a class="dropdown-item" th:href="@{/logout}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                        </ul>
+                    </li>
                     <li class="nav-item" sec:authorize="!isAuthenticated()">
                         <a class="btn btn-outline-light btn-sm ms-2 px-3" th:href="@{/login}">
                             <i class="fas fa-sign-in-alt me-1"></i>Login
@@ -275,29 +297,6 @@
                         <a class="btn btn-light text-primary btn-sm ms-2 px-3" th:href="@{/register}">
                             <i class="fas fa-user-plus me-1"></i>Register
                         </a>
-                    </li>
-                    <li class="nav-item" sec:authorize="isAuthenticated()">
-                        <div class="dropdown">
-                            <a class="nav-link dropdown-toggle text-light d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-user-circle me-2"></i>
-                                <span sec:authentication="name" class="me-1"></span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a class="dropdown-item" th:href="@{/profile}">
-                                        <i class="fas fa-user me-2 text-primary"></i>Profile
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form th:action="@{/logout}" method="post" class="d-inline">
-                                        <button type="submit" class="dropdown-item">
-                                            <i class="fas fa-sign-out-alt me-2 text-danger"></i>Logout
-                                        </button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </div>
                     </li>
                 </ul>
             </div>
@@ -388,14 +387,14 @@
 
     <!-- Custom JavaScript -->
     <script>
-        // Set current year in footer
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
-
-        // Tooltip initialization
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        });
+        // Auto-close alerts after 5 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
 
         // Scroll reveal initialization
         document.addEventListener('DOMContentLoaded', () => {
@@ -406,49 +405,6 @@
                 delay: 200,
                 interval: 100
             });
-        });
-
-        // Add smooth scrolling
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
-
-        // Auto-close alerts after 5 seconds
-        setTimeout(() => {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            });
-        }, 5000);
-
-        // Show loading spinner on form submit and page transition
-        document.addEventListener('submit', (e) => {
-            const form = e.target;
-            if (form.matches('form')) {
-                e.preventDefault();
-                const spinner = document.getElementById('loadingSpinner');
-                spinner.classList.add('show');
-                setTimeout(() => {
-                    form.submit();
-                }, 1000); // Simulate loading time
-            }
-        });
-
-        // Show spinner on page transition
-        document.addEventListener('turbo:visit', () => {
-            const spinner = document.getElementById('loadingSpinner');
-            spinner.classList.add('show');
-        });
-
-        document.addEventListener('turbo:load', () => {
-            const spinner = document.getElementById('loadingSpinner');
-            spinner.classList.remove('show');
         });
     </script>
 

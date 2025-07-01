@@ -2,7 +2,10 @@ package com.app.ai.controller;
 
 import com.app.ai.model.Product;
 import com.app.ai.model.ProductPhoto;
+import com.app.ai.model.StockHistory;
 import com.app.ai.service.ProductService;
+import com.app.ai.service.CategoryService;
+import com.app.ai.service.StockHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -20,6 +23,8 @@ import org.springframework.http.MediaType;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
 import java.io.IOException;
 
 @Controller
@@ -29,17 +34,34 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private CategoryService categoryService;
+
+    @Autowired
+    private StockHistoryService stockHistoryService;
+
     @GetMapping("/list")
     public String listProducts(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "9") int size,
             @RequestParam(defaultValue = "id") String sortField,
             @RequestParam(defaultValue = "asc") String sortDir,
             Model model) {
         Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortField).ascending() : Sort.by(sortField).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<Product> productPage = productService.findPaginatedProducts(pageable);
+
+        // Create a map of product IDs to their first photo for efficient lookup
+        Map<Long, ProductPhoto> productPhotos = new HashMap<>();
+        for (Product product : productPage.getContent()) {
+            List<ProductPhoto> photos = productService.getProductPhotos(product);
+            if (!photos.isEmpty()) {
+                productPhotos.put(product.getId(), photos.get(0)); // Get first photo
+            }
+        }
+
         model.addAttribute("productPage", productPage);
+        model.addAttribute("productPhotos", productPhotos);
         model.addAttribute("currentPage", page);
         model.addAttribute("pageSize", size);
         model.addAttribute("sortField", sortField);
@@ -52,6 +74,7 @@ public class ProductController {
     @PreAuthorize("hasRole('ADMIN')")
     public String showAddForm(Model model) {
         model.addAttribute("product", new Product());
+        model.addAttribute("categories", categoryService.findAllCategories());
         return "product/form";
     }
 
@@ -82,6 +105,7 @@ public class ProductController {
             List<ProductPhoto> photos = productService.getProductPhotos(product);
             model.addAttribute("product", product);
             model.addAttribute("photos", photos);
+            model.addAttribute("categories", categoryService.findAllCategories());
             return "product/form";
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -109,8 +133,13 @@ public class ProductController {
         }
         Product product = productOpt.get();
         List<ProductPhoto> photos = productService.getProductPhotos(product);
+
+        // Get stock history for this product
+        List<StockHistory> stockHistory = stockHistoryService.getProductStockHistory(id);
+
         model.addAttribute("product", product);
         model.addAttribute("photos", photos);
+        model.addAttribute("stockHistory", stockHistory);
         return "product/view";
     }
 
