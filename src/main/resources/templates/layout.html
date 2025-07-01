@@ -16,56 +16,45 @@
     <link rel="stylesheet" th:href="@{/css/enhanced-styles.css}">
     <style>
         :root {
-            /* Modern color palette with synchronous colors */
-            --primary-color: #4361ee;
-            --primary-light: #7394ff;
-            --primary-dark: #0030bc;
-            --secondary-color: #3f37c9;
-            --accent-color: #4cc9f0;
+            --primary-color: #00ABE4;
+            --primary-light: #E9F1FA;
+            --primary-dark: #007fa3;
+            --secondary-color: #4361ee;
+            --accent-color: #00ABE4;
             --success-color: #4CAF50;
             --warning-color: #f8961e;
             --danger-color: #ef476f;
-            --light-color: #f8f9fa;
+            --light-color: #FFFFFF;
             --dark-color: #212529;
-            --gray-100: #f8f9fa;
+            --gray-100: #E9F1FA;
             --gray-200: #e9ecef;
             --gray-300: #dee2e6;
             --gray-400: #ced4da;
             --gray-500: #adb5bd;
             --gray-800: #343a40;
-
-            /* Typography */
             --font-main: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-
-            /* Spacing */
             --spacing-xs: 0.25rem;
             --spacing-sm: 0.5rem;
             --spacing-md: 1rem;
             --spacing-lg: 1.5rem;
             --spacing-xl: 3rem;
-
-            /* Border radius */
             --border-radius-sm: 0.25rem;
             --border-radius-md: 0.5rem;
             --border-radius-lg: 1rem;
             --border-radius-pill: 50rem;
         }
 
-        body {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background-color: var(--gray-100);
+        html, body {
+            background: var(--primary-light);
             font-family: var(--font-main);
             color: var(--dark-color);
-            line-height: 1.6;
-            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* Clean, modern navbar */
         .navbar {
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            background: var(--primary-color) !important;
+            color: #fff !important;
             padding: var(--spacing-md) 0;
         }
 
@@ -73,6 +62,7 @@
             font-weight: 700;
             letter-spacing: 1px;
             font-size: 1.3rem;
+            color: #fff !important;
         }
 
         .nav-link {
@@ -82,6 +72,7 @@
             padding: var(--spacing-sm) var(--spacing-md);
             border-radius: var(--border-radius-md);
             transition: all 0.3s ease;
+            color: #fff !important;
         }
 
         .nav-link:hover {
@@ -102,24 +93,16 @@
             border: none;
         }
 
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
+        .btn-primary, .btn-outline-primary {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #fff;
         }
 
-        .btn-primary:hover, .btn-primary:focus {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
-        }
-
-        .btn-outline-light {
-            border: 2px solid rgba(255, 255, 255, 0.8);
-        }
-
-        .btn-outline-light:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            border-color: white;
+        .btn-primary:hover, .btn-outline-primary:hover {
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+            color: #fff;
         }
 
         .btn-warning {
@@ -157,16 +140,16 @@
         footer {
             margin-top: auto;
             padding: var(--spacing-xl) 0;
-            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-color) 100%);
-            color: white;
+            background: var(--primary-color) !important;
+            color: #fff !important;
         }
 
         /* Cleaner cards with consistent styling */
         .card {
-            border: none;
             border-radius: var(--border-radius-lg);
+            box-shadow: 0 4px 24px rgba(0,171,228,0.08);
+            border: 1px solid var(--primary-light);
             overflow: hidden;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.05);
             transition: all 0.3s ease;
             margin-bottom: var(--spacing-lg);
         }
@@ -242,6 +225,15 @@
         .status-inactive {
             background-color: rgba(239, 71, 111, 0.1);
             color: var(--danger-color);
+        }
+
+        .badge-primary, .badge-role {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        .table-hover tbody tr:hover {
+            background: var(--primary-light);
         }
     </style>
 </head>

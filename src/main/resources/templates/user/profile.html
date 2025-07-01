@@ -2,25 +2,36 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout :: html(~{::section})}">
 <body>
-<section>
-    <h2>My Profile</h2>
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <h4 class="card-title mb-3" th:text="${user.username}">Username</h4>
-            <p class="card-text"><strong>Email:</strong> <span th:text="${user.email}">Email</span></p>
-            <p class="card-text"><strong>User ID:</strong> <span th:text="${user.id}">ID</span></p>
-            <p class="card-text"><strong>Roles:</strong>
-                <span th:each="role : ${user.roles}" th:text="${role.name + ' '}">Role</span>
-                <span th:if="${#lists.isEmpty(user.roles)}" class="text-muted">No roles assigned</span>
-            </p>
-            <p class="card-text"><strong>Account Status:</strong>
-                <span th:if="${user.enabled}" class="badge bg-success">Active</span>
-                <span th:unless="${user.enabled}" class="badge bg-danger">Inactive</span>
-            </p>
+<section class="container py-5">
+    <h2 class="mb-4 text-center" style="color:var(--primary-color);font-weight:700;">My Profile</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg mb-4">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <div class="mx-auto mb-3"
+                             style="width:100px;height:100px;background:var(--primary-color);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:#fff;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h4 class="card-title mb-1" th:text="${user.username}">Username</h4>
+                        <span class="badge badge-role mb-2" th:each="role : ${user.roles}"
+                              th:text="${role.name}">Role</span>
+                        <span th:if="${#lists.isEmpty(user.roles)}" class="text-muted">No roles assigned</span>
+                    </div>
+                    <p class="card-text mb-2"><strong>Email:</strong> <span th:text="${user.email}">Email</span></p>
+                    <p class="card-text mb-2"><strong>User ID:</strong> <span th:text="${user.id}">ID</span></p>
+                    <p class="card-text mb-2"><strong>Account Status:</strong>
+                        <span th:if="${user.enabled}" class="status-badge status-active">Active</span>
+                        <span th:unless="${user.enabled}" class="status-badge status-inactive">Inactive</span>
+                    </p>
+                    <div class="d-flex justify-content-center mt-4 gap-2">
+                        <a th:href="@{/}" class="btn btn-secondary">Back to Home</a>
+                        <a th:href="@{/profile/edit}" class="btn btn-primary">Edit Profile</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <a th:href="@{/}" class="btn btn-secondary">Back to Home</a>
-    <a th:href="@{/profile/edit}" class="btn btn-primary ms-2">Edit Profile</a>
 </section>
 </body>
 </html>
