@@ -2,21 +2,28 @@ package com.app.ai.controller;
 
 import com.app.ai.model.User;
 import com.app.ai.model.Role;
+import com.app.ai.model.ProfilePhoto;
 import com.app.ai.service.UserService;
 import com.app.ai.repository.RoleRepository;
+import com.app.ai.repository.ProfilePhotoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -26,6 +33,8 @@ public class UserController {
     private UserService userService;
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private ProfilePhotoRepository profilePhotoRepository;
 
     @GetMapping("/profile")
     public String viewProfile(Authentication authentication, Model model) {
@@ -174,5 +183,38 @@ public class UserController {
                 redirectAttributes.addFlashAttribute("errorMessage", "User not found");
                 return "redirect:/users/list";
             });
+    }
+
+    @PostMapping("/profile/photo/upload")
+    public String uploadProfilePhoto(Authentication authentication, @RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) throws IOException {
+        String username = authentication.getName();
+        Optional<User> userOpt = userService.findUserByUsername(username);
+        if (userOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "User not found");
+            return "redirect:/profile/edit";
+        }
+        User user = userOpt.get();
+        ProfilePhoto photo = profilePhotoRepository.findByUser(user).orElse(new ProfilePhoto());
+        photo.setUser(user);
+        photo.setFileName(file.getOriginalFilename());
+        photo.setFileType(file.getContentType());
+        photo.setData(file.getBytes());
+        profilePhotoRepository.save(photo);
+        user.setProfilePhoto(photo);
+        userService.updateUser(user);
+        redirectAttributes.addFlashAttribute("successMessage", "Profile photo uploaded successfully.");
+        return "redirect:/profile/edit";
+    }
+
+    @GetMapping("/profile/photo/{id}")
+    public ResponseEntity<byte[]> getProfilePhoto(@PathVariable Long id) {
+        Optional<User> userOpt = userService.findUserById(id);
+        if (userOpt.isEmpty()) return ResponseEntity.notFound().build();
+        User user = userOpt.get();
+        ProfilePhoto photo = user.getProfilePhoto();
+        if (photo == null || photo.getData() == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType(photo.getFileType()))
+            .body(photo.getData());
     }
 }

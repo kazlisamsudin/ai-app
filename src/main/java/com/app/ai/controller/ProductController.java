@@ -1,6 +1,7 @@
 package com.app.ai.controller;
 
 import com.app.ai.model.Product;
+import com.app.ai.model.ProductPhoto;
 import com.app.ai.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,6 +13,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+
+import java.util.List;
+import java.util.Optional;
+import java.io.IOException;
 
 @Controller
 @RequestMapping("/products")
@@ -48,10 +57,19 @@ public class ProductController {
 
     @PostMapping("/save")
     @PreAuthorize("hasRole('ADMIN')")
-    public String saveProduct(@ModelAttribute Product product, RedirectAttributes redirectAttributes) {
-        productService.saveProduct(product);
-        redirectAttributes.addFlashAttribute("successMessage", 
-            product.getId() == null ? "Product added successfully!" : "Product updated successfully!");
+    public String saveProduct(@ModelAttribute Product product, @RequestParam(value = "photo", required = false) MultipartFile photo, RedirectAttributes redirectAttributes) {
+        boolean isNew = (product.getId() == null);
+        Product savedProduct = productService.saveProduct(product);
+        if (photo != null && !photo.isEmpty()) {
+            try {
+                productService.saveProductPhoto(savedProduct, photo);
+            } catch (IOException e) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Product saved, but failed to upload photo.");
+                return "redirect:/products/list";
+            }
+        }
+        redirectAttributes.addFlashAttribute("successMessage",
+            isNew ? "Product added successfully!" : "Product updated successfully!");
         return "redirect:/products/list";
     }
 
@@ -61,7 +79,9 @@ public class ProductController {
         try {
             Product product = productService.findProductById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid product ID: " + id));
+            List<ProductPhoto> photos = productService.getProductPhotos(product);
             model.addAttribute("product", product);
+            model.addAttribute("photos", photos);
             return "product/form";
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -82,15 +102,60 @@ public class ProductController {
     }
 
     @GetMapping("/view/{id}")
-    public String viewProduct(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
-        return productService.findProductById(id)
-            .map(product -> {
-                model.addAttribute("product", product);
-                return "product/view";
-            })
-            .orElseGet(() -> {
-                redirectAttributes.addFlashAttribute("errorMessage", "Product not found");
-                return "redirect:/products/list";
-            });
+    public String viewProduct(@PathVariable Long id, Model model) {
+        Optional<Product> productOpt = productService.findProductById(id);
+        if (productOpt.isEmpty()) {
+            return "redirect:/products/list";
+        }
+        Product product = productOpt.get();
+        List<ProductPhoto> photos = productService.getProductPhotos(product);
+        model.addAttribute("product", product);
+        model.addAttribute("photos", photos);
+        return "product/view";
+    }
+
+    @PostMapping("/upload-photo/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String uploadProductPhoto(@PathVariable Long id, @RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
+        Optional<Product> productOpt = productService.findProductById(id);
+        if (productOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Product not found.");
+            return "redirect:/products/view/" + id;
+        }
+        try {
+            productService.saveProductPhoto(productOpt.get(), file);
+            redirectAttributes.addFlashAttribute("successMessage", "Photo uploaded successfully!");
+        } catch (IOException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to upload photo.");
+        }
+        return "redirect:/products/view/" + id;
+    }
+
+    @GetMapping("/photo/{photoId}")
+    public ResponseEntity<byte[]> getProductPhoto(@PathVariable Long photoId) {
+        Optional<ProductPhoto> photoOpt = productService.getProductPhotoById(photoId);
+        if (photoOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        ProductPhoto photo = photoOpt.get();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + photo.getFileName() + "\"")
+                .contentType(MediaType.parseMediaType(photo.getFileType()))
+                .body(photo.getData());
+    }
+
+    @PostMapping("/photo/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String deleteProductPhoto(@PathVariable("id") Long photoId, RedirectAttributes redirectAttributes) {
+        Optional<ProductPhoto> photoOpt = productService.getProductPhotoById(photoId);
+        if (photoOpt.isPresent()) {
+            Product product = photoOpt.get().getProduct();
+            productService.deleteProductPhoto(photoId);
+            redirectAttributes.addFlashAttribute("successMessage", "Photo removed successfully!");
+            return "redirect:/products/view/" + product.getId();
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "Photo not found.");
+            return "redirect:/products/list";
+        }
     }
 }

@@ -31,6 +31,9 @@ public class User {
     )
     private Set<Role> roles = new HashSet<>();
     
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private ProfilePhoto profilePhoto;
+
     // Constructors
     public User() {}
     
@@ -91,5 +94,13 @@ public class User {
     
     public void addRole(Role role) {
         this.roles.add(role);
+    }
+
+    public ProfilePhoto getProfilePhoto() {
+        return profilePhoto;
+    }
+
+    public void setProfilePhoto(ProfilePhoto profilePhoto) {
+        this.profilePhoto = profilePhoto;
     }
 }

@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout :: html(~{::section})}">
-<body>
+<body style="background: linear-gradient(120deg, #E9F1FA 60%, #00ABE4 100%); min-height: 100vh;">
 <section class="container py-5">
     <div class="row justify-content-center animate__animated animate__fadeIn">
         <div class="col-md-6 col-lg-5">
-            <div class="card shadow-lg">
-                <div class="card-header text-white py-3" style="background: var(--primary-color);">
-                    <h3 class="text-center mb-0">
+            <div class="card shadow-lg border-0" style="border-radius: 1.5rem;">
+                <div class="card-header text-white py-4"
+                     style="background: linear-gradient(90deg, #00ABE4 60%, #E9F1FA 100%); border-top-left-radius: 1.5rem; border-top-right-radius: 1.5rem;">
+                    <h3 class="text-center mb-1">
                         <i class="fas fa-sign-in-alt me-2"></i>Login
                     </h3>
+                    <p class="text-center mb-0"
+                       style="font-size:1.15rem;opacity:0.92;letter-spacing:0.2px;">Welcome back! Please sign in to your account
+                    </p>
                 </div>
-                <div class="card-body p-4">
+                <div class="card-body p-5">
                     <div th:if="${param.error}" class="alert alert-danger animate__animated animate__headShake">
                         <i class="fas fa-exclamation-circle me-2"></i>Invalid username or password.
                     </div>
@@ -27,7 +31,8 @@
                                 <i class="fas fa-user"></i>
                             </span>
                             <input type="text" id="username" name="username" class="form-control form-control-lg"
-                                   placeholder="Username" required>
+                                   placeholder="Username" required
+                                   style="border-radius: 2rem; box-shadow: 0 2px 8px #e9f1fa;">
                             <div class="invalid-feedback">
                                 Please enter your username.
                             </div>
@@ -37,7 +42,8 @@
                                 <i class="fas fa-lock"></i>
                             </span>
                             <input type="password" id="password" name="password" class="form-control form-control-lg"
-                                   placeholder="Password" required>
+                                   placeholder="Password" required
+                                   style="border-radius: 2rem; box-shadow: 0 2px 8px #e9f1fa;">
                             <button class="btn btn-outline-secondary" type="button" id="togglePassword"
                                     title="Show/Hide Password">
                                 <i class="fas fa-eye"></i>
@@ -47,7 +53,8 @@
                             </div>
                         </div>
                         <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg">
+                            <button type="submit" class="btn btn-primary btn-lg py-3"
+                                    style="border-radius:2rem;font-size:1.15rem;letter-spacing:0.5px;box-shadow:0 2px 12px #00abe42a;">
                                 <i class="fas fa-sign-in-alt me-1"></i> Login
                             </button>
                         </div>

@@ -2,27 +2,35 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
       th:replace="~{layout :: html(~{::section})}">
-<body>
+<body style="background: linear-gradient(120deg, #E9F1FA 60%, #00ABE4 100%); min-height: 100vh;">
 <section class="container py-5">
     <div class="row">
         <div class="col-lg-12 mb-4">
-            <div class="p-5 rounded-3 shadow-lg animate__animated animate__fadeIn" style="background: linear-gradient(90deg, #E9F1FA 60%, #00ABE4 100%); color: #222;">
+            <div class="p-5 rounded-4 shadow-lg animate__animated animate__fadeIn border-0"
+                 style="background: linear-gradient(90deg, #E9F1FA 60%, #00ABE4 100%); color: #222; border-radius: 2rem;">
                 <div class="container">
-                    <h1 class="display-4 fw-bold animate__animated animate__fadeInDown" style="color:var(--primary-color);">Welcome to App</h1>
-                    <p class="lead fs-4 animate__animated animate__fadeInUp animate__delay-1s">This is a simple application demonstrating advanced UI techniques.</p>
+                    <h1 class="display-4 fw-bold animate__animated animate__fadeInDown"
+                        style="color:var(--primary-color);">Welcome to App
+                    </h1>
+                    <p class="lead fs-4 animate__animated animate__fadeInUp animate__delay-1s">This is a simple application
+                        demonstrating advanced UI techniques.</p>
                     <hr class="my-4 opacity-25">
-                    <p class="animate__animated animate__fadeInUp animate__delay-2s">The application includes user registration, login, role-based security, and product management with CRUD operations.</p>
+                    <p class="animate__animated animate__fadeInUp animate__delay-2s">The application includes user
+                        registration, login, role-based security, and product management with CRUD operations.</p>
                     <div class="mt-4 animate__animated animate__fadeInUp animate__delay-3s">
                         <div sec:authorize="!isAuthenticated()" class="d-flex flex-wrap gap-3">
-                            <a class="btn btn-primary btn-lg shadow-sm" th:href="@{/register}" role="button">
+                            <a class="btn btn-primary btn-lg shadow-sm px-5 py-3 rounded-pill" th:href="@{/register}"
+                               role="button" style="font-size:1.15rem;letter-spacing:0.5px;">
                                 <i class="fas fa-user-plus me-2"></i>Register
                             </a>
-                            <a class="btn btn-warning btn-lg shadow-sm" th:href="@{/login}" role="button">
+                            <a class="btn btn-warning btn-lg shadow-sm px-5 py-3 rounded-pill" th:href="@{/login}"
+                               role="button" style="font-size:1.15rem;letter-spacing:0.5px;">
                                 <i class="fas fa-sign-in-alt me-2"></i>Login
                             </a>
                         </div>
                         <div class="mt-3">
-                            <small class="text-dark-50">After logging in, you can view, add, and delete products from the product list page. Admins have full access to all product management features.</small>
+                            <small class="text-dark-50">After logging in, you can view, add, and delete products from the
+                                product list page. Admins have full access to all product management features.</small>
                         </div>
                     </div>
                 </div>
@@ -36,38 +44,41 @@
             <p class="text-muted">Discover what makes our application stand out</p>
         </div>
         <div class="col-md-4 mb-4">
-            <div class="card h-100 border-0 shadow-sm">
+            <div class="card h-100 border-0 shadow-lg rounded-4">
                 <div class="card-body text-center p-4">
-                    <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-4 mx-auto"
-                         style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: var(--primary-color);">
-                        <i class="fas fa-lock fa-2x"></i>
+                    <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-4 mx-auto shadow"
+                         style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; background: var(--primary-color); font-size:2rem;">
+                        <i class="fas fa-lock"></i>
                     </div>
                     <h4 class="card-title">Secure Authentication</h4>
-                    <p class="card-text text-muted">User registration and login with Spring Security for robust authentication and authorization.</p>
+                    <p class="card-text text-muted">User registration and login with Spring Security for robust
+                        authentication and authorization.</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4 mb-4">
-            <div class="card h-100 border-0 shadow-sm">
+            <div class="card h-100 border-0 shadow-lg rounded-4">
                 <div class="card-body text-center p-4">
-                    <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-4 mx-auto"
-                         style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: var(--primary-color);">
-                        <i class="fas fa-database fa-2x"></i>
+                    <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-4 mx-auto shadow"
+                         style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; background: var(--primary-color); font-size:2rem;">
+                        <i class="fas fa-database"></i>
                     </div>
                     <h4 class="card-title">Product Management</h4>
-                    <p class="card-text text-muted">Easily add, edit, view, and delete products with a beautiful, responsive UI.</p>
+                    <p class="card-text text-muted">Easily add, edit, view, and delete products with a beautiful,
+                        responsive UI.</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4 mb-4">
-            <div class="card h-100 border-0 shadow-sm">
+            <div class="card h-100 border-0 shadow-lg rounded-4">
                 <div class="card-body text-center p-4">
-                    <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-4 mx-auto"
-                         style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: var(--primary-color);">
-                        <i class="fas fa-users fa-2x"></i>
+                    <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-4 mx-auto shadow"
+                         style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; background: var(--primary-color); font-size:2rem;">
+                        <i class="fas fa-users"></i>
                     </div>
                     <h4 class="card-title">Role-Based Access</h4>
-                    <p class="card-text text-muted">Admins have full access, while users have limited access for a secure experience.</p>
+                    <p class="card-text text-muted">Admins have full access, while users have limited access for a
+                        secure experience.</p>
                 </div>
             </div>
         </div>

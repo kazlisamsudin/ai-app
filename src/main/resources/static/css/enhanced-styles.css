@@ -98,6 +98,61 @@ a, button, .btn, .nav-link, .form-control, .card {
   letter-spacing: 0.5px;
 }
 
+/* Table header gradient and style */
+table thead, .table thead {
+  background: linear-gradient(90deg, #00ABE4 60%, #0077B6 100%) !important;
+  color: #fff !important;
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+}
+table thead th, .table thead th {
+  background: transparent !important;
+  color: #fff !important;
+}
+table thead th:first-child, .table thead th:first-child {
+  border-top-left-radius: 1rem !important;
+}
+table thead th:last-child, .table thead th:last-child {
+  border-top-right-radius: 1rem !important;
+}
+
+/* Table footer style to match but contrast header */
+table tfoot, .table tfoot {
+  background: linear-gradient(90deg, #0077B6 60%, #00ABE4 100%) !important;
+  color: #fff !important;
+  font-size: 1.05rem !important;
+  font-weight: 600 !important;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.06) !important;
+}
+table tfoot th, .table tfoot th, table tfoot td, .table tfoot td {
+  background: transparent !important;
+  color: #fff !important;
+}
+table tfoot th:first-child, .table tfoot td:first-child {
+  border-bottom-left-radius: 1rem !important;
+}
+table tfoot th:last-child, .table tfoot td:last-child {
+  border-bottom-right-radius: 1rem !important;
+}
+
+/* Example for table footer row */
+/*
+<tfoot>
+  <tr>
+    <td colspan="6" class="text-end">Total Users: 123</td>
+  </tr>
+</tfoot>
+*/
+
+/* Alternating row colors */
+table tbody tr:nth-child(even) {
+  background-color: #E9F1FA;
+}
+table tbody tr:hover {
+  background-color: #d0eaff;
+}
+
 /* Pagination enhancements */
 .pagination .page-link {
   border-radius: var(--border-radius-sm);
