@@ -399,49 +399,161 @@
 
     <footer class="text-white mt-5">
         <div class="container">
-            <div class="row py-4">
-                <div class="col-md-4">
-                    <div class="mb-4">
-                        <h5 class="mb-3"><i class="fas fa-code me-2"></i>App</h5>
-                        <p class="text-white-50 mb-3">A modern web application with clean design and powerful features.</p>
-                        <div class="d-flex gap-2 mt-3">
-                            <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
-                            <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
-                            <a href="#" class="social-icon"><i class="fab fa-linkedin"></i></a>
-                            <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+            <div class="row py-5">
+                <!-- Brand Section -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="footer-brand">
+                        <h4 class="mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="brand-icon-wrapper me-3">
+                                    <i class="fas fa-cube brand-icon"></i>
+                                </div>
+                                <span class="brand-text">
+                                    <span class="brand-main">My</span><span class="brand-accent">Store</span>
+                                </span>
+                            </div>
+                        </h4>
+                        <p class="text-white-50 mb-4">Your trusted e-commerce platform for modern businesses. Secure, scalable, and user-friendly solutions for all your online selling needs.</p>
+
+                        <!-- Social Links -->
+                        <div class="social-links">
+                            <h6 class="mb-3 text-warning">Follow Us</h6>
+                            <div class="d-flex gap-3">
+                                <a href="#" class="social-icon" title="Facebook">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a href="#" class="social-icon" title="Twitter">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a href="#" class="social-icon" title="LinkedIn">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                                <a href="#" class="social-icon" title="Instagram">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                                <a href="#" class="social-icon" title="GitHub">
+                                    <i class="fab fa-github"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3 offset-md-2">
-                    <h5 class="mb-3">Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="/" class="footer-link"><i class="fas fa-angle-right me-2"></i>Home</a></li>
-                        <li><a href="/products/list" class="footer-link"><i class="fas fa-angle-right me-2"></i>Products</a></li>
-                        <li><a href="/users/list" class="footer-link"><i class="fas fa-angle-right me-2"></i>Users</a></li>
-                        <li><a href="/users/view/1" class="footer-link"><i class="fas fa-angle-right me-2"></i>View User</a></li>
-                        <li><a href="mailto:krolshah@gmail.com" class="footer-link"><i class="fas fa-angle-right me-2"></i>Email Me</a></li>
+
+                <!-- Quick Links -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="mb-3 text-warning">Platform</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="/" class="footer-link">Home</a></li>
+                        <li><a href="/products/list" class="footer-link">Products</a></li>
+                        <li><a href="/categories/list" class="footer-link" sec:authorize="hasRole('ADMIN')">Categories</a></li>
+                        <li><a href="/dashboard" class="footer-link" sec:authorize="hasRole('ADMIN')">Dashboard</a></li>
+                        <li><a href="/orders/my-orders" class="footer-link" sec:authorize="isAuthenticated()">My Orders</a></li>
                     </ul>
                 </div>
-                <div class="col-md-3">
-                    <h5 class="mb-3">Contact</h5>
-                    <ul class="list-unstyled">
-                        <li class="d-flex align-items-center mb-2">
-                            <i class="fas fa-map-marker-alt me-2"></i>
-                            <span>Khairul Azli</span>
-                        </li>
-                        <li class="d-flex align-items-center mb-2">
-                            <i class="fas fa-envelope me-2"></i>
-                            <span>krolshah@gmail.com</span>
-                        </li>
-                        <li class="d-flex align-items-center mb-2">
-                            <i class="fas fa-phone me-2"></i>
-                            <span>(+60) 14 535-4567</span>
-                        </li>
+
+                <!-- Account Links -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="mb-3 text-warning">Account</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li sec:authorize="!isAuthenticated()"><a href="/login" class="footer-link">Login</a></li>
+                        <li sec:authorize="!isAuthenticated()"><a href="/register" class="footer-link">Register</a></li>
+                        <li sec:authorize="isAuthenticated()"><a href="/profile" class="footer-link">My Profile</a></li>
+                        <li sec:authorize="isAuthenticated()"><a href="/cart/view" class="footer-link">Shopping Cart</a></li>
+                        <li sec:authorize="hasRole('ADMIN')"><a href="/users/list" class="footer-link">Manage Users</a></li>
                     </ul>
+                </div>
+
+                <!-- Support -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="mb-3 text-warning">Support</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="#" class="footer-link">Help Center</a></li>
+                        <li><a href="#" class="footer-link">Documentation</a></li>
+                        <li><a href="#" class="footer-link">Privacy Policy</a></li>
+                        <li><a href="#" class="footer-link">Terms of Service</a></li>
+                        <li><a href="mailto:support@mystore.com" class="footer-link">Contact Support</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="mb-3 text-warning">Contact</h5>
+                    <div class="contact-info">
+                        <div class="contact-item mb-3">
+                            <i class="fas fa-envelope me-2 text-warning"></i>
+                            <div>
+                                <small class="text-white-50">Email</small>
+                                <div><a href="mailto:krolshah@gmail.com" class="footer-link">krolshah@gmail.com</a></div>
+                            </div>
+                        </div>
+                        <div class="contact-item mb-3">
+                            <i class="fas fa-phone me-2 text-warning"></i>
+                            <div>
+                                <small class="text-white-50">Phone</small>
+                                <div><a href="tel:+60145354567" class="footer-link">+60 14 535-4567</a></div>
+                            </div>
+                        </div>
+                        <div class="contact-item mb-3">
+                            <i class="fas fa-clock me-2 text-warning"></i>
+                            <div>
+                                <small class="text-white-50">Support Hours</small>
+                                <div class="text-white-50">24/7 Available</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="border-top border-white border-opacity-25 pt-4 pb-4 text-center">
-                <p class="mb-0">&copy; 2025 | Powered by innovation ✨ | All Rights Reserved</p>
+
+            <!-- Newsletter Section -->
+            <div class="row py-4 border-top border-white border-opacity-25">
+                <div class="col-lg-8">
+                    <div class="newsletter-section">
+                        <h5 class="mb-2 text-warning">Stay Updated</h5>
+                        <p class="text-white-50 mb-3">Subscribe to our newsletter for the latest updates, new features, and exclusive offers.</p>
+                        <div class="newsletter-form d-flex gap-2">
+                            <input type="email" class="form-control" placeholder="Enter your email address" style="border-radius: 0.5rem;">
+                            <button class="btn btn-warning px-4" style="border-radius: 0.5rem;">
+                                <i class="fas fa-paper-plane me-2"></i>Subscribe
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                    <div class="footer-badges">
+                        <h6 class="mb-3 text-warning">Trusted & Secure</h6>
+                        <div class="d-flex gap-3 justify-content-lg-end">
+                            <div class="security-badge">
+                                <i class="fas fa-shield-alt text-success fa-2x"></i>
+                                <div><small class="text-white-50">SSL Secured</small></div>
+                            </div>
+                            <div class="security-badge">
+                                <i class="fas fa-lock text-info fa-2x"></i>
+                                <div><small class="text-white-50">Data Protected</small></div>
+                            </div>
+                            <div class="security-badge">
+                                <i class="fas fa-award text-warning fa-2x"></i>
+                                <div><small class="text-white-50">Certified</small></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Copyright -->
+            <div class="row py-3 border-top border-white border-opacity-25">
+                <div class="col-lg-6">
+                    <p class="mb-0 text-white-50">
+                        &copy; 2025 MyStore. All rights reserved.
+                        <span class="text-warning">Built with ❤️ for modern e-commerce</span>
+                    </p>
+                </div>
+                <div class="col-lg-6 text-lg-end mt-2 mt-lg-0">
+                    <div class="footer-legal">
+                        <a href="#" class="footer-link me-3">Privacy</a>
+                        <a href="#" class="footer-link me-3">Terms</a>
+                        <a href="#" class="footer-link">Cookies</a>
+                    </div>
+                </div>
             </div>
         </div>
     </footer>
