@@ -1,0 +1,28 @@
+databases:
+  - name: mystore-db
+    databaseName: myappdb
+    user: mystore_user
+
+services:
+  - type: web
+    name: mystore-app
+    env: java
+    buildCommand: mvn clean package -DskipTests
+    startCommand: java -Dserver.port=$PORT $JAVA_OPTS -jar target/myApp-0.0.1-SNAPSHOT.jar
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mystore-db
+          property: connectionString
+      - key: DB_USERNAME
+        fromDatabase:
+          name: mystore-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: mystore-db
+          property: password
+      - key: SPRING_PROFILES_ACTIVE
+        value: production
+      - key: JAVA_OPTS
+        value: -Xmx512m -Xms256m
